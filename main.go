@@ -1,25 +1,32 @@
-// package main
+package main
 
-// import (
-// 	"encoding/json"
-// 	"fmt"
-// 	"io/ioutil"
-// 	"log"
-// 	"net/http"
-// )
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+)
 
-// type text struct {
-// 	Text string
-// }
 
-// type author struct {
-// 	Author string
-// }
+type Wisdom struct {
+	Text   string
+	Author string
+}
 
-// type Wisdom struct {
-// 	Text   text
-// 	Author author
-// }
+func main() {
+	apiUrl := "https://type.fit/api/quotes"
+
+	quotes, err := getQuote(apiUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("%+v\n", quotes.Text)
+
+	for _, w := range quotes {
+		fmt.Printf("Quote by: %+v\n", w.Text)
+	}
+}
 
 // func main() {
 // 	apiUrl := "https://type.fit/api/quotes"
@@ -28,97 +35,83 @@
 // 	if err != nil {
 // 		log.Fatal(err)
 // 	}
-// 	fmt.Println("%+v\n", quotes.Text)
+// 	// fmt.Printf("%d quotes\n", quotes.Count)
 
-// 	// for _, w := range quotes.Author.Author {
-// 	// 	fmt.Printf("Quote by: %+v\n", w)
-// 	// }
 // }
 
-// // func main() {
-// // 	apiUrl := "https://type.fit/api/quotes"
+func getQuote(apiUrl string) (Wisdom, error) {
+	w := Wisdom{}
+  	// var w []Wisdom
 
-// // 	quotes, err := getQuote(apiUrl)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	// fmt.Printf("%d quotes\n", quotes.Count)
+	// we have to check for errors, so we check for nil/null
 
-// // }
+	req, err := http.NewRequest(http.MethodGet, apiUrl, nil)
+	if err != nil {
+		return w, err
+	}
 
-// func getQuote(apiUrl string) (Wisdom, error) {
-// 	// w := Wisdom{}
-//   	var w []Wisdom
+	req.Header.Set("User-Agent", "krisraven-tms-test")
 
-// 	// we have to check for errors, so we check for nil/null
+	res, err := http.DefaultClient.Do(req) // make the request
+	if err != nil {
+		return w, err
+	}
 
-// 	req, err := http.NewRequest(http.MethodGet, apiUrl, nil)
-// 	if err != nil {
-// 		return w, err
-// 	}
+	if res.Body != nil {
+		defer res.Body.Close() // defer is used to defer any cleanup activities until the end of the function
+	}
 
-// 	req.Header.Set("User-Agent", "krisraven-tms-test")
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return w, err
+	}
 
-// 	res, err := http.DefaultClient.Do(req) // make the request
-// 	if err != nil {
-// 		return w, err
-// 	}
+	// Unmarshal takes the response body and tries to input the data in the data structure created in a struct
+	err = json.Unmarshal(body, &w)
+	if err != nil {
+		log.Fatalf("unable to parse value: %q, error: %s",
+			string(body), err.Error()) // error handling
+		return w, err
+	}
 
-// 	if res.Body != nil {
-// 		defer res.Body.Close() // defer is used to defer any cleanup activities until the end of the function
-// 	}
+	return w, nil
+}
 
-// 	body, err := ioutil.ReadAll(res.Body)
-// 	if err != nil {
-// 		return w, err
-// 	}
+// package main
 
-// 	// Unmarshal takes the response body and tries to input the data in the data structure created in a struct
-// 	err = json.Unmarshal([]byte(body), &w)
-// 	if err != nil {
-// 		log.Fatalf("unable to parse value: %q, error: %s",
-// 			string(body), err.Error()) // error handling
-// 		return w, err
-// 	}
+// import (
+//     "encoding/json"
+//     "fmt"
+//     "io/ioutil"
+//     "log"
+//     "net/http"
+// )
 
-// 	return w, nil
+// type Wisdom struct {
+// 	Text   string
+// 	Author string
 // }
 
-package main
+// func main() {
+//     apiUrl := "https://type.fit/api/quotes"
+//     res, err := http.Get(apiUrl)
+//     if err != nil {
+//         log.Fatal(err)
+//     }
+//     defer res.Body.Close()
+//     body, err := ioutil.ReadAll(res.Body)
+//     if err != nil {
+//         log.Fatal(err)
+//     }
 
-import (
-    "encoding/json"
-    "fmt"
-    "io/ioutil"
-    "log"
-    "net/http"
-)
+//     var w []Wisdom
 
-type Wisdom struct {
-	Text   string
-	Author string
-}
+//     err = json.Unmarshal(body, &w)
+//     if err != nil {
+//         panic(err)
+//     }
 
-func main() {
-    apiUrl := "https://type.fit/api/quotes"
-    res, err := http.Get(apiUrl)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer res.Body.Close()
-    body, err := ioutil.ReadAll(res.Body)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    var w []Wisdom
-
-    err = json.Unmarshal(body, &w)
-    if err != nil {
-        panic(err)
-    }
-
-    for _, quotes := range w {
-        log.Fatal(fmt.Println("\"",quotes.Text,"\""," -", quotes.Author))
-    }
-}
+//     for _, quotes := range w {
+//         log.Fatal(fmt.Println("\"",quotes.Text,"\""," -", quotes.Author))
+//     }
+// }
