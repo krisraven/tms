@@ -53,15 +53,12 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	randomnumber := rand.Intn(1643)
 
-	// create a list/hashtable of all data. Use the random number as the key.
-	// Then if that random number is in the list, output the quote
 	counter := 1
 
 	var quoteslist map[int]string
 	quoteslist = make(map[int] string)
 
 	for _, quotes := range w {
-		// fmt.Printf("%d %s - %s\n", counter, quotes.Text, quotes.Author)
 		quoteslist[counter]=(quotes.Text + " -" + quotes.Author)
 		counter++
 	}
