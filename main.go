@@ -2,11 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"math/rand"
 	"time"
+	"fmt"
 )
 
 type Wisdom struct {
@@ -49,13 +50,24 @@ func main() {
 		panic(err)
 	}
 
-	// randomnumber := rand.Intn(1643)
+	rand.Seed(time.Now().UnixNano())
+	randomnumber := rand.Intn(1643)
 
 	// create a list/hashtable of all data. Use the random number as the key.
 	// Then if that random number is in the list, output the quote
 	counter := 1
+
+	var quoteslist map[int]string
+	quoteslist = make(map[int] string)
+
 	for _, quotes := range w {
-		fmt.Printf("%d %s - %s\n", counter, quotes.Text, quotes.Author)
+		// fmt.Printf("%d %s - %s\n", counter, quotes.Text, quotes.Author)
+		quoteslist[counter]=(quotes.Text + " -" + quotes.Author)
 		counter++
 	}
+
+	n := quoteslist[randomnumber]
+
+	fmt.Printf("%+v \n", n)
+	
 }
