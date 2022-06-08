@@ -10,28 +10,54 @@ import (
 	"fmt"
 )
 
-type Wisdom struct {
-	Text   string `json:"text"`
+type Wisdom[] struct {
+	Text  string `json:"text"`
 	Author string `json:"author"`
+}
+
+type QuoteMap struct {
+	n string
 }
 
 func main() {
 	apiUrl := "https://type.fit/api/quotes"
 
-	quoteClient := http.Client{
-		Timeout: time.Second * 5,
-	}
-
-	req, err := http.NewRequest(http.MethodGet, apiUrl, nil)
+	qq, err := getQuotes(apiUrl)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	randomnumber := rand.Intn(1643)
+
+	counter := 1
+
+	var quotesList map[int]string
+	quotesList = make(map[int]string)
+
+	for _, quotes := range qq {
+		quotesList[counter]=(quotes.Text + " -" + quotes.Author)
+		counter++
+	}
+
+	n := quotesList[randomnumber]
+
+	fmt.Printf("%+v \n", n)
+}
+
+func getQuotes(apiUrl string)(Wisdom, error) {
+	w := Wisdom{}
+	
+	req, err := http.NewRequest(http.MethodGet, apiUrl, nil)
+	if err != nil {
+		return w, err
 	}
 
 	req.Header.Set("User-Agent", "krisraven-tms")
 
-	res, err := quoteClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return w, err
 	}
 
 	if res.Body != nil {
@@ -40,31 +66,13 @@ func main() {
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Fatal(err)
+		return w, err
 	}
 
-	var w []Wisdom
- 
 	err = json.Unmarshal(body, &w)
 	if err != nil {
-		panic(err)
+		return w, err
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	randomnumber := rand.Intn(1643)
-
-	counter := 1
-
-	var quoteslist map[int]string
-	quoteslist = make(map[int] string)
-
-	for _, quotes := range w {
-		quoteslist[counter]=(quotes.Text + " -" + quotes.Author)
-		counter++
-	}
-
-	n := quoteslist[randomnumber]
-
-	fmt.Printf("%+v \n", n)
-	
+	return w, err
 }
