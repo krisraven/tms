@@ -2,16 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"math/rand"
+	"net/http"
 	"time"
-	"fmt"
 )
 
-type Wisdom[] struct {
-	Text  string `json:"text"`
+type Wisdom []struct {
+	Text   string `json:"text"`
 	Author string `json:"author"`
 }
 
@@ -28,7 +28,7 @@ func main() {
 	}
 
 	rand.Seed(time.Now().UnixNano())
-	randomnumber := rand.Intn(1643)
+	randomnumber := rand.Intn(len(qq))
 
 	counter := 1
 
@@ -36,7 +36,7 @@ func main() {
 	quotesList = make(map[int]string)
 
 	for _, quotes := range qq {
-		quotesList[counter]=(quotes.Text + " -" + quotes.Author)
+		quotesList[counter] = (quotes.Text + " -" + quotes.Author)
 		counter++
 	}
 
@@ -45,9 +45,9 @@ func main() {
 	fmt.Printf("%+v \n", n)
 }
 
-func getQuotes(apiUrl string)(Wisdom, error) {
+func getQuotes(apiUrl string) (Wisdom, error) {
 	w := Wisdom{}
-	
+
 	req, err := http.NewRequest(http.MethodGet, apiUrl, nil)
 	if err != nil {
 		return w, err
